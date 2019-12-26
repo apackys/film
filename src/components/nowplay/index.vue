@@ -15,12 +15,12 @@
 							购票
 						</div>
 					</li>
-				</ul></BScroll><MessageBox />
+				</ul></BScroll>
 			</div>
 
 </template>
 <script>
-import MessageBox from '@/components/js/MessageBox'
+import {messagebox} from '@/components/js'
 export default {
     name:'NowPlay',
     data(){
@@ -31,7 +31,34 @@ export default {
 		   precityid:-1
         }
 	},
-	components:{MessageBox,},
+	mounted(){
+		this.$axios.get('/api/getLocation')
+		.then(res=>{
+			var msg = res.data.msg;
+			if(msg === 'ok'){
+				 var nm = res.data.data.nm;
+				 let sid = res.data.data.id;
+				
+				 if(this.$store.state.city.id == sid){return;}
+				 messagebox({
+							title : '定位',
+							content :nm,
+							cancel : '取消',
+							ok : '切换位置',
+							handleOk(){
+								window.localStorage.setItem('nowNm',nm);
+								window.localStorage.setItem('nowId',sid);
+								window.location.reload();
+							},
+							handleCancel(){
+
+							}
+						})
+			}
+
+		})
+		 
+	},
 	activated(){
 		var cityid = this.$store.state.city.id;
 		//城市不变时切换非城市选项是不在请求json

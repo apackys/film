@@ -103,8 +103,8 @@ export default {
 		handleToCity(nm,id){
 			this.$store.commit('city/CITY_INFO',{nm,id});
 			//store的mutations在city的文件下引入 ，所以要加city
-			window.localStorage.setItem('Nownm',nm);
-			window.localStorage.setItem('Nowid',id);
+			window.localStorage.setItem('nowNm',nm);
+			window.localStorage.setItem('nowId',id);
 			this.$router.push('/movie/nowplay');
 		}
 		
