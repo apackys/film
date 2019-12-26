@@ -18,6 +18,24 @@ export default {
     path:'nowplay',
     component:()=>import('@/components/nowplay'),
   },
+  {
+    path:'detail/n/:movieid',
+    components:{
+    default:()=>import('@/components/nowplay'),
+    detail:()=>import('@/views/movie/detail'),},
+    props:{
+      detail:true
+    }
+  },
+  {
+    path:'detail/s/:movieid',
+    components:{
+    default:()=>import('@/components/comesoon'),
+    detail:()=>import('@/views/movie/detail'),},
+    props:{
+      detail:true
+    }
+  },
   
 ]
 }
