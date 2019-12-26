@@ -1,7 +1,6 @@
 <template>
-   <div class="cinema_body"><Loading v-if='isloading' />
-	  <BScroll v-else :handleToScroll='handleToScroll' :handleToTouchEnd='handleToTouchEnd'>
-				<ul><li class="pullDown">{{pullDownMsg}}</li>
+   <div class="cinema_body"><BScroll :handleToScroll="handleToScroll" :handleTopullingUp="handleTopullingUp">
+				<ul>
 					<li v-for="item in cinemas" :key="item.id">
 						<div>
 							<span>{{item.nm}}</span>
@@ -16,66 +15,49 @@
                 			
        					</div>
 					</li>
-				
-				</ul>
-	  </BScroll>
+					<li class="pullDown">{{pullDownMsg}}</li>
+				</ul></BScroll>
+		
 		 </div>
 </template>
 
 <script>
+
 export default {
   name: 'CiList',
   data(){
 	  return{
-		  cinemas:[],
+		  cinemas:'',
 		  pullDownMsg:'',
-		  isloading:true,
-		  precityid:-1,
-		  cityid:''
+
 	  }
   },
 
- 
-  activated(){
-	  this.cityid = this.$store.state.city.id;
-	  if(this.precityid === this.cityid){return}
-	  this.isloading=true;
-	  console.log('影院请求json一次')
-	  this.$axios.get('/ajax/cinemaList?offset=0&limit=20&cityId='+this.cityid)	  
+  mounted(){
+	  this.$axios.get('http://localhost:8081/cinemas')
 	  .then(res=>{
-		  var data = res.data.cinemas;
+		  var data = res;
 		  if(data){
-			  this.cinemas= data;
-			  this.isloading=false;
-			  this.precityid = this.cityid;
+			  this.cinemas= res.data;
 		  }
-	  });
-
+	  })
   },
   methods:{
-	  handleToScroll(pos){
-		  if(pos.y>20){
-			  this.pullDownMsg="更新中";
-		  }
-	  },
 	 
-	  	async handleToTouchEnd(pos){
-			if(pos.y > 20){
-				await this.$axios.get('/ajax/cinemaList?offset=20&limit=20&cityId='+this.cityid)
-				.then(res=>{
-					var data = res.data.cinemas;
-					//console.log(res.data)
-					if(data){
-						this.pullDownMsg="更新完成";
-						setTimeout(()=>{
-							this.cinemas = [...this.cinemas,...data];
-							this.pullDownMsg="";
-						},1000)
-					}
-				})
-			}
-		},
-
+	  async handleTopullingUp(){
+			await this.$axios.get('http://localhost:8081/cinemas2')
+			  .then(res=>{
+				  let arr2=res.data;
+				  if(arr2){
+					this.pullDownMsg="loading";
+					this.cinemas = [...this.cinemas, ...arr2];
+					this.pullDownMsg="";
+						
+					  }
+				  
+			  })
+		  
+	  }
   },
   filters:{
 	  formatcard(key){

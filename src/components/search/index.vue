@@ -3,30 +3,22 @@
 				<div class="search_input">
 					<div class="search_input_wrapper">
 						<i class="iconfont icon-sousuo"></i>
-						<input type="text">
+						<input type="text" v-model="message">
 					</div>					
 				</div>
 				<div class="search_result">
 					<h3>电影/电视剧/综艺</h3>
 					<ul>
-						<li>
-							<div class="img"><img src="images/movie_1.jpg"></div>
+						<li v-for="item in movieList" :key="item.id">
+							<div class="img"><img :src="item.img | setWH('128.180')"></div>
 							<div class="info">
-								<p><span>无名之辈</span><span>8.5</span></p>
-								<p>A Cool Fish</p>
-								<p>剧情,喜剧,犯罪</p>
-								<p>2018-11-16</p>
+								<p><span>{{item.nm}}</span><span>8.5</span></p>
+								<p>{{item.enm}}</p>
+								<p>{{item.cat}}</p>
+								<p>{{item.rt}}</p>
 							</div>
 						</li>
-						<li>
-							<div class="img"><img src="images/movie_1.jpg"></div>
-							<div class="info">
-								<p><span>无名之辈</span><span>8.5</span></p>
-								<p>A Cool Fish</p>
-								<p>剧情,喜剧,犯罪</p>
-								<p>2018-11-16</p>
-							</div>
-						</li>
+					
 					</ul>
 				</div>
 			</div>
@@ -36,10 +28,49 @@ export default {
     name:'Search',
     data(){
         return{
-           
-
+		   message:'',
+		   movieList:[],
+		   cinameList:[]
         }
-    }
+	},
+	methods:{
+		//axios取消请求及阻止重复请求的方法 
+		cancelRequest(){
+			if(typeof this.source === 'function'){
+				this.source('Stop request')
+			}
+		}
+	},
+	watch:{
+		message(newval){
+			var that= this;
+            this.cancelRequest();
+			this.$axios.get('/api/searchList?cityId=10&kw='+newval,{
+				//axios取消请求及阻止重复请求的方法
+				 cancelToken: new this.$axios.CancelToken(function(c){
+                   that.source = c;})
+			})
+			.then(res=>{
+				var msg= res.data.msg;
+				var movies =res.data.data.movies;
+				
+				if(msg && movies){
+					this.movieList = movies.list;
+				}
+			})
+			.catch((err)=>{
+				// 如果请求被取消则进入该方法判断
+				if (this.$axios.isCancel(err)) {
+					console.log('Request canceled', err.message);
+				} else {
+					// handle error
+				}
+				})
+             // 取消上面的请求
+		
+		}
+	},
+	
 }
 </script>
 

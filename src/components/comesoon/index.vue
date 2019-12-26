@@ -1,103 +1,23 @@
 <template>
     	<div class="movie_body">
+			<Loading v-if='isloading' />
+			<BScroll v-else :handleToScroll='handleToScroll' :handleToTouchEnd='handleToTouchEnd' :handleTopullingUp='handleTopullingUp'>
 				<ul>
-					<li>
-						<div class="pic_show"><img src="/static/images/movie_1.jpg"></div>
+					<li class="pullDown">{{pullDownMsg}}</li>
+					<li v-for="item in ComingList" :key="item.id" >
+						<div class="pic_show"><img :src="item.img | setWH('128.180')"></div>
 						<div class="info_list">
-							<h2>无名之辈</h2>
-							<p><span class="person">17746</span> 人想看</p>
-							<p>主演: 陈建斌,任素汐,潘斌龙</p>
-							<p>2018-11-30上映</p>
+							<h2>{{item.nm}}<img v-if='item.version' src="/static/images/maxs.png"></h2>
+							<p><span class="person">{{item.wish}}</span> 人想看</p>
+							<p>主演: {{item.star}}</p>
+							<p>{{item.rt}}上映</p>
 						</div>
 						<div class="btn_pre">
 							预售
 						</div>
 					</li>
-					<li>
-						<div class="pic_show"><img src="/static/images/movie_2.jpg"></div>
-						<div class="info_list">
-							<h2>毒液：致命守护者</h2>
-							<p><span class="person">2346</span> 人想看</p>
-							<p>主演: 汤姆·哈迪,米歇尔·威廉姆斯,里兹·阿迈德</p>
-							<p>2018-11-30上映</p>
-						</div>
-						<div class="btn_pre">
-							预售
-						</div>
-					</li>
-					<li>
-						<div class="pic_show"><img src="/static/images/movie_1.jpg"></div>
-						<div class="info_list">
-							<h2>无名之辈</h2>
-							<p><span class="person">17746</span> 人想看</p>
-							<p>主演: 陈建斌,任素汐,潘斌龙</p>
-							<p>2018-11-30上映</p>
-						</div>
-						<div class="btn_pre">
-							预售
-						</div>
-					</li>
-					<li>
-						<div class="pic_show"><img src="/static/images/movie_2.jpg"></div>
-						<div class="info_list">
-							<h2>毒液：致命守护者</h2>
-							<p><span class="person">2346</span> 人想看</p>
-							<p>主演: 汤姆·哈迪,米歇尔·威廉姆斯,里兹·阿迈德</p>
-							<p>2018-11-30上映</p>
-						</div>
-						<div class="btn_pre">
-							预售
-						</div>
-					</li>
-					<li>
-						<div class="pic_show"><img src="/static/images/movie_1.jpg"></div>
-						<div class="info_list">
-							<h2>无名之辈</h2>
-							<p><span class="person">17746</span> 人想看</p>
-							<p>主演: 陈建斌,任素汐,潘斌龙</p>
-							<p>2018-11-30上映</p>
-						</div>
-						<div class="btn_pre">
-							预售
-						</div>
-					</li>
-					<li>
-						<div class="pic_show"><img src="/static/images/movie_2.jpg"></div>
-						<div class="info_list">
-							<h2>毒液：致命守护者</h2>
-							<p><span class="person">2346</span> 人想看</p>
-							<p>主演: 汤姆·哈迪,米歇尔·威廉姆斯,里兹·阿迈德</p>
-							<p>2018-11-30上映</p>
-						</div>
-						<div class="btn_pre">
-							预售
-						</div>
-					</li>
-					<li>
-						<div class="pic_show"><img src="/static/images/movie_1.jpg"></div>
-						<div class="info_list">
-							<h2>无名之辈</h2>
-							<p><span class="person">17746</span> 人想看</p>
-							<p>主演: 陈建斌,任素汐,潘斌龙</p>
-							<p>2018-11-30上映</p>
-						</div>
-						<div class="btn_pre">
-							预售
-						</div>
-					</li>
-					<li>
-						<div class="pic_show"><img src="/static/images/movie_2.jpg"></div>
-						<div class="info_list">
-							<h2>毒液：致命守护者</h2>
-							<p><span class="person">2346</span> 人想看</p>
-							<p>主演: 汤姆·哈迪,米歇尔·威廉姆斯,里兹·阿迈德</p>
-							<p>2018-11-30上映</p>
-						</div>
-						<div class="btn_pre">
-							预售
-						</div>
-					</li>
-				</ul>
+					
+				</ul></BScroll>
 			</div>
 </template>
 <script>
@@ -105,10 +25,66 @@ export default {
     name:'ComeSoon',
     data(){
         return{
-           
+		   ComingList:[],
+		   pullDownMsg:'',
+		   isloading:true,
+		   precityid:-1,
 
         }
-    }
+	},
+	activated(){
+		var cityid= this.$store.state.city.id;
+		if(this.precityid === cityid){return}
+		this.isloading=true;
+		console.log('即将上映请求json一次')
+		this.$axios.get('/ajax/comingList?',{params:{
+			ci:cityid,
+			token:'r6ENmL2MgwcFtPigGqYeqWbdwsYAAAAAsAkAAPXQehZNfc_syiGuoVenbxFHzs7pBc39MTJl1bQNoTJctEhhLmBJKC4kOTGHfdsyjg'
+		}})
+		.then(res=>{
+			//console.log(res.data)
+			var msg =res.data.coming;
+			if(msg){
+				this.ComingList = msg;
+				this.isloading=false
+				this.precityid = cityid;
+			}
+		})
+	},
+	methods:{
+		handleToScroll(pos){
+			if(pos.y > 20){
+				this.pullDownMsg="正在刷新";
+			}
+		},
+		async handleToTouchEnd(pos){
+			if(pos.y > 20){
+				await this.$axios.get('http://localhost:8081/coming2')
+				.then(res=>{
+					var data =res.data;
+					if(data){
+						this.pullDownMsg="刷新成功";
+						setTimeout(()=>{
+							this.ComingList = data;
+							this.pullDownMsg="";
+						},1000)
+					}
+				})
+			}
+		},
+		async handleTopullingUp(pos){
+			//有bug   等待解决
+			await this.$axios.get('http://localhost:8081/coming3')
+				.then(res=>{
+					var data =res.data;
+					if(data){
+						this.pullDownMsg="加载成功";
+						this.ComingList = [...this.ComingList,...data];
+						this.pullDownMsg="";	
+					}
+				})
+		}
+	}
 }
 </script>
 
@@ -126,4 +102,5 @@ export default {
 .movie_body .info_list img{ width:50px; position: absolute; right:10px; top: 5px;}
 .movie_body .btn_mall , .movie_body .btn_pre{ width:47px; height:27px; line-height: 28px; text-align: center; background-color: #f03d37; color: #fff; border-radius: 4px; font-size: 12px; cursor: pointer;}
 .movie_body .btn_pre{ background-color: #3c9fe6;}
+.movie_body .pullDown{padding: 0;margin: 0;border:none; text-align: center;}
 </style>

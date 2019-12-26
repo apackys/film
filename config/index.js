@@ -10,11 +10,29 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {},
+    proxyTable: {
+      '/api': {
+      target:'http://39.97.33.178',//请求域名
+      //secure: false, // 如果是https接口，需要配置这个参数
+      changeOrigin:true,//如果是跨域访问，需要配置这个参数
+      pathRewrite:{
+        '^/api': '/api'
+         
+      }
+    },
+    '/ajax': {
+      target:'http://m.maoyan.com',//请求域名
+      //secure: false, // 如果是https接口，需要配置这个参数
+      changeOrigin:true,//如果是跨域访问，需要配置这个参数
+      pathRewrite:{
+        '^/ajax': '/ajax'
+      }
+    }
+        },
 
     // Various Dev Server settings
     host: 'localhost', // can be overwritten by process.env.HOST
-    port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
+    port: 8008, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: false,
     errorOverlay: true,
     notifyOnErrors: true,
